@@ -1,0 +1,67 @@
+{
+    "name": "voby-table",
+    "version": "1.0.0",
+    "description": "table ui component for voby",
+    "keywords": [
+        "voby",
+        "voby-table",
+        "table",
+        "component",
+        "ui"
+    ],
+    "files": [
+        "assets/*.css",
+        "es",
+        "lib"
+    ],
+    "main": "./dist/index.cjs.js",
+    "module": "./dist/index.es.js",
+    "browser": "./dist/index.umd.js",
+    "types": "./dist/types/index.d.ts",
+    "homepage": "",
+    "maintainers": [],
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:voby-component/table.git"
+    },
+    "bugs": {
+        "url": "http://github.com/voby-component/table/issues"
+    },
+    "license": "MIT",
+    "scripts": {
+        "start": "vite dev",
+        "compile": "father build && lessc assets/index.less assets/index.css",
+        "deploy": "npm run docs:build && npm run docs:deploy",
+        "prettier": "prettier --write \"**/*.{js,jsx,tsx,ts,less,md,json}\"",
+        "css:watch": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
+        "css": "tailwindcss -i ./src/input.css -o ./dist/output.css",
+        "declaration": "tsc --build --force --declaration --emitDeclarationOnly --verbose",
+        "declaration:watch": "tsc --build --force --declaration --emitDeclarationOnly --verbose --watch",
+        "watch": "run-p build:watch css:watch",
+        "build": "run-s css build:vite css",
+        "build:web": "vite build --config=vite.config.web.ts --force --mode production",
+        "web": "vite preview --config=vite.config.web.ts --host",
+        "dev:only": "vite --config=vite.config.web.ts --force --mode dev --host",
+        "dev": "run-p css:watch dev:only",
+        "build:vite": "vite build",
+        "build:watch": "vite build --watch",
+        "preview": "vite preview --host"
+    },
+    "peerDependencies": {
+        "lodash-es": "^4.17.21",
+        "voby": "workspace:../woby",
+        "voby-wheeler": "workspace:../voby-wheeler",
+        "voby-slider": "workspace:../voby-slider",
+        "voby-styled": "workspace:../voby-styled",
+        "use-voby": "workspace:../use-voby"
+    },
+    "devDependencies": {
+        "@types/lodash-es": "^4.17.9",
+        "cross-env": "^7.0.0",
+        "lodash-es": "^4.17.21",
+        "tailwindcss": "^3.3.3",
+        "vite": "^4.4.9",
+        "vite-plugin-dts": "^2.3.0",
+        "vite-plugin-svgr": "^3.2.0"
+    }
+}
