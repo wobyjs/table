@@ -1,6 +1,6 @@
 {
     "name": "woby-table",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "table ui component for voby",
     "keywords": [
         "woby",
@@ -49,7 +49,7 @@
     },
     "peerDependencies": {
         "lodash-es": "^4.17.21",
-        "use-woby": "workspace:../use-woby",
+        "use-woby": "workspace:^",
         "woby": "workspace:^",
         "woby-slider": "workspace:^",
         "woby-styled": "workspace:^",
