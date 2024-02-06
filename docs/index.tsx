@@ -1,10 +1,10 @@
-import { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, Observable } from "voby"
+import { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, Observable } from 'woby'
 import { groupBy, orderBy, filter as ft, chain, sortBy, sumBy, isArray, omit, map } from "lodash-es"
-import { Table, TableProps, useTable } from '../src/index'
-import { tw } from 'voby-styled'
-import { useClickAway, make } from 'use-voby'
-import { Wheeler } from 'voby-wheeler'
-import 'voby-wheeler/dist/output.css'
+import { Table, TableProps, useData } from '../src/index'
+import { tw } from 'woby-styled'
+import { useClickAway, } from 'use-woby'
+import { Wheeler, useRecordWheeler } from 'woby-wheeler'
+import 'woby-wheeler/dist/output.css'
 
 const ExpandMoreIcon = (props: JSX.SVGAttributes<SVGElement>) => <svg class="inline-block" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" {...props}><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z" /></svg>
 const ExpandLessIcon = (props: JSX.SVGAttributes<SVGElement>) => <svg class="inline-block" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" {...props}><path d="m296-345-56-56 240-240 240 240-56 56-184-184-184 184Z" /></svg>
@@ -88,104 +88,19 @@ const nestedGroupData = chain(db)
     )
     .value()
 
-type SortDir = 'asc' | 'desc' | ''
-type ToObservable<T, V> = Record<keyof T, ObservableMaybe<V>>
-type SortDirRecord<T> = Record<keyof T, Observable<SortDir>>
-
-type IData<T> = {
-    data: ObservableMaybe<T[]>,
-    sortable?: Partial<ToObservable<T, boolean>>
-    sortdir?: Partial<SortDirRecord<T>>
-    filterable?: Partial<ToObservable<T, boolean>>
-    showColumns?: Partial<ToObservable<T, boolean>>
-
-    filter?: ObservableMaybe<string>
-    showInput?: ObservableMaybe<boolean>
-    showColummn?: ObservableMaybe<boolean>
-}
-
-const useRecordWheeler = <T, V>(d: Record<keyof T, ObservableMaybe<V>>) => {
-    const keys = Object.keys(d) as (keyof T)[]
-    const data = [$(keys.map((key) => ({ text: key, value: key, checked: d[key] })))]
-    const checked = keys.map(key => d[key])
-
-    return {
-        data, checked, value: [$()],
-        renderer: [r => r.text],
-        valuer: [r => r.value],
-        checkboxer: [r => r.checked],
-        checkbox: [$(true)],
-        noMask: true,
-        hideOnBackdrop: true,
-        rows: Math.min(6, keys.length),
-    }
-}
-
-const useData = <T,>(props: IData<T>) => {
-    const sortable: ToObservable<T, boolean> = {} as ToObservable<T, boolean>
-    const sortdir: SortDirRecord<T> = {} as SortDirRecord<T>
-    const filterable: ToObservable<T, boolean> = {} as ToObservable<T, boolean>
-    const showColumns: ToObservable<T, boolean> = {} as ToObservable<T, boolean>
-
-    Object.keys(props.data[0]).forEach((key/* : keyof T */) => {
-        sortable[key] = isObservable(props.sortable?.[key]) ? props.sortable?.[key] : $(props.sortable?.[key] ?? true)
-        sortdir[key] = isObservable(props.sortdir?.[key]) ? props.sortdir?.[key] : $<SortDir>($$(props.sortdir?.[key]) ?? '')
-        filterable[key] = isObservable(props.filterable?.[key]) ? props.filterable?.[key] : $(props.filterable?.[key] ?? true)
-        showColumns[key] = isObservable(props.showColumns?.[key]) ? props.showColumns?.[key] : $(props.showColumns?.[key] ?? true)
-    })
-
-    const sortorder: string[] = []
-
-    const { data, filter, showInput, showColummn } = make(Object.assign({ filter: null, showInput: false, showColummn: false }, props))
-
-    const sortClick = (col: string) => {
-        const sd = sortdir[col]
-        if ($$(sortable[col]))
-            if ($$(sd) === '') {
-                sd('asc')
-                if (sortorder.indexOf(col) == -1)
-                    sortorder.push(col)
-            }
-            else if ($$(sd) === 'asc') {
-                sd('desc')
-                if (sortorder.indexOf(col) == -1)
-                    sortorder.push(col)
-            }
-            else if ($$(sd) === 'desc') {
-                sd('')
-                const pos = sortorder.indexOf(col)
-                sortorder.splice(pos, 1)
-            }
-
-        const keyValueArray = Object.entries(sortdir).map(([key, value]) => ({ key, value }))
-        const sorts = keyValueArray.filter(k => $$(k.value) !== '')
-
-        let fb = ft(db, d => !$$(filter) ? true : Object.keys(d).filter(k => $$(filterable[k])).some(k => d[k]?.toString().toLocaleLowerCase().indexOf($$(filter).toLocaleLowerCase()) >= 0))
-        const hides = Object.keys(showColumns).filter(k => !$$(showColumns[k])).map(k => k)
-        if (hides.length)
-            fb = fb.map(r => omit(r, hides))
-        if (sorts.length > 0)
-            data(orderBy(fb, sortorder, sortorder.filter(r => hides.indexOf(r) >= 0).map(k => $$(sortdir[k])) as any) as any)
-        else
-            data(fb as any)
-    }
-    useEffect(() => {
-        $$(filter)
-        sortClick("")
-    })
-
-    return { data, filter, sortable, sortdir, filterable, showInput, showColummn, sortClick, showColumns, }
-}
 
 const MainTab = () => {
     const inputRef = $<HTMLInputElement>()
     const inputCont = $<HTMLInputElement>()
 
-    const { filter, showInput, data, sortable, sortdir, filterable, showColummn, sortClick, showColumns } =
+    const { filter, showInput, data, sortable, sortdir, filterable, showColummn, sortClick, showColumns, orderColumns } =
         useData({ data: db, sortable: { name: true, age: true, country: true }, filterable: { id: false, add: false } })
 
     useClickAway(inputCont, () => showInput(false))
     useEffect(() => $$(showInput) && $$(inputRef) && $$(inputRef).focus())
+
+    useEffect(() => console.log($$(orderColumns)))
+    orderColumns(['name', 'age', 'country', 'add', 'id',])
 
     const fi = <FilterIcon class='cursor-pointer inline-block' onClick={() => { showInput(true); $$(filter) }} />
 
@@ -194,13 +109,17 @@ const MainTab = () => {
         {() => $$(filter) && $$(filter).length > 0 ? <>{fi}<FilterOffIcon class='cursor-pointer inline-block' onClick={() => { showInput(false); filter(null) }} /></> : fi}
         {
             () => $$(showInput) ? <div ref={inputCont} class='inline-block'>
-                <input ref={inputRef} class='border' value={filter} onKeyup={e => { filter(e.target.value); console.log(e.target.value) }} onKeydown={e => { e.keyCode === 13 && (showInput(false), filter($$(changing))) }} />
+                <input ref={inputRef} class='border' value={filter} onKeyup={e => { filter(e.target.value); console.log(e.target.value) }} onKeydown={e => { e.keyCode === 13 && (showInput(false), filter(e.target.value)) }} />
                 <span class='bg-[#f8e3fa] border cursor-pointer' onClick={() => { showInput(false); filter(null) }}>✖</span>
                 <span class='bg-[#f7fae3] border cursor-pointer' onClick={() => { showInput(false) }}>✔</span></div> : null
         }
         <Wheeler {...useRecordWheeler(showColumns)} open={showColummn} toolbar />
 
-        <Table data={data} class='w-1/2'
+        <Table data={data} class='w-1/2' orderColumns={orderColumns}
+            TTh={() => <tr>
+                <th colspan={2} class='text-[blue] border-[1px] border-solid border-[lightgray] uppercase'>Info</th>
+                <th colspan={2} class='text-[blue] border-[1px] border-solid border-[lightgray] uppercase'>Countrry</th>
+                <th class='text-[blue] border-[1px] border-solid border-[lightgray] uppercase'></th></tr>}
             Th={({ col }) => $$(showColumns[col]) ? <th onClick={() => sortClick(col)}
                 class={['text-[blue] border-[1px] border-solid border-[lightgray] uppercase',
                     () => $$(sortable[col]) ? 'cursor-pointer' : '',
@@ -227,108 +146,109 @@ const MainTab = () => {
         />
     </>
 }
-const MainTabHook = () => {
-    const sortable = {
-        id: $(false),
-        name: $(true),
-        age: $(true),
-        country: $(true),
-    }
-    const sortdir: Record<string, Observable<SortDir>> = {
-        id: $<SortDir>(''),
-        name: $<SortDir>(''),
-        age: $<SortDir>(''),
-        country: $<SortDir>(''),
-    }
-    const filterable = {
-        name: $(true),
-        age: $(true),
-        country: $(true),
-    }
-    const sortorder: string[] = []
 
-    const data = $(db)
-    const filter = $<string>(null)
-    const showInput = $(false)
-    const showColummn = $(false)
-    const inputRef = $<HTMLInputElement>()
-    const inputCont = $<HTMLInputElement>()
+// const MainTabHook = () => {
+//     const sortable = {
+//         id: $(false),
+//         name: $(true),
+//         age: $(true),
+//         country: $(true),
+//     }
+//     const sortdir: Record<string, Observable<SortDir>> = {
+//         id: $<SortDir>(''),
+//         name: $<SortDir>(''),
+//         age: $<SortDir>(''),
+//         country: $<SortDir>(''),
+//     }
+//     const filterable = {
+//         name: $(true),
+//         age: $(true),
+//         country: $(true),
+//     }
+//     const sortorder: string[] = []
 
-    const sortClick = (col: string) => {
-        const sd = sortdir[col]
-        if ($$(sortable[col]))
-            if ($$(sd) === '') {
-                sd('asc')
-                if (sortorder.indexOf(col) == -1)
-                    sortorder.push(col)
-            }
-            else if ($$(sd) === 'asc') {
-                sd('desc')
-                if (sortorder.indexOf(col) == -1)
-                    sortorder.push(col)
-            }
-            else if ($$(sd) === 'desc') {
-                sd('')
-                const pos = sortorder.indexOf(col)
-                sortorder.splice(pos, 1)
-            }
+//     const data = $(db)
+//     const filter = $<string>(null)
+//     const showInput = $(false)
+//     const showColummn = $(false)
+//     const inputRef = $<HTMLInputElement>()
+//     const inputCont = $<HTMLInputElement>()
 
-        const keyValueArray = Object.entries(sortdir).map(([key, value]) => ({ key, value }))
-        const sorts = keyValueArray.filter(k => $$(k.value) !== '')
+//     const sortClick = (col: string) => {
+//         const sd = sortdir[col]
+//         if ($$(sortable[col]))
+//             if ($$(sd) === '') {
+//                 sd('asc')
+//                 if (sortorder.indexOf(col) == -1)
+//                     sortorder.push(col)
+//             }
+//             else if ($$(sd) === 'asc') {
+//                 sd('desc')
+//                 if (sortorder.indexOf(col) == -1)
+//                     sortorder.push(col)
+//             }
+//             else if ($$(sd) === 'desc') {
+//                 sd('')
+//                 const pos = sortorder.indexOf(col)
+//                 sortorder.splice(pos, 1)
+//             }
 
-        const fb = ft(db, d => !$$(filter) ? true : Object.keys(d).filter(k => $$(filterable[k])).some(k => d[k]?.toString().toLocaleLowerCase().indexOf($$(filter).toLocaleLowerCase()) >= 0))
-        if (sorts.length > 0)
-            data(orderBy(fb, sortorder, sortorder.map(k => $$(sortdir[k])) as any))
-        else
-            data(fb)
-    }
-    useClickAway(inputCont, () => showInput(false))
-    useEffect(() => $$(showInput) && $$(inputRef) && $$(inputRef).focus())
-    useEffect(() => {
-        $$(filter)
-        sortClick("")
-    })
-    const fi = <FilterIcon class='cursor-pointer inline-block' onClick={() => { showInput(true); $$(filter) }} />
+//         const keyValueArray = Object.entries(sortdir).map(([key, value]) => ({ key, value }))
+//         const sorts = keyValueArray.filter(k => $$(k.value) !== '')
 
-    const { Th, Td, Tr, table } = useTable({ data, class: 'w-1/2' })
-    Th(({ col, }) => <th onClick={() => sortClick(col)}
-        class={['text-[blue] border-[1px] border-solid border-[lightgray] uppercase',
-            () => $$(sortable[col]) ? 'cursor-pointer' : '',
-            // '[&>div]:hidden [&:hover>div]:inline-block'
-        ]}>
-        {col}
-        <div class='float-right'>{() => $$(sortable[col]) ?
-            ($$(sortdir[col]) === 'asc') ? <ExpandLessIcon /> : ($$(sortdir[col]) === 'desc') ? <ExpandMoreIcon /> : <SquareIcon /> : null}</div>
-    </th>)
-    Td(({ col, row, }) => {
-        const edit = $(false)
-        const inp = $<HTMLInputElement>()
-        const ref = $<HTMLTableCellElement>()
+//         const fb = ft(db, d => !$$(filter) ? true : Object.keys(d).filter(k => $$(filterable[k])).some(k => d[k]?.toString().toLocaleLowerCase().indexOf($$(filter).toLocaleLowerCase()) >= 0))
+//         if (sorts.length > 0)
+//             data(orderBy(fb, sortorder, sortorder.map(k => $$(sortdir[k])) as any))
+//         else
+//             data(fb)
+//     }
+//     useClickAway(inputCont, () => showInput(false))
+//     useEffect(() => $$(showInput) && $$(inputRef) && $$(inputRef).focus())
+//     useEffect(() => {
+//         $$(filter)
+//         sortClick("")
+//     })
+//     const fi = <FilterIcon class='cursor-pointer inline-block' onClick={() => { showInput(true); $$(filter) }} />
 
-        useEffect(() => $$(inp)?.focus())
+//     const { Th, Td, Tr, table } = useTable({ data, class: 'w-1/2' })
+//     Th(({ col, }) => <th onClick={() => sortClick(col)}
+//         class={['text-[blue] border-[1px] border-solid border-[lightgray] uppercase',
+//             () => $$(sortable[col]) ? 'cursor-pointer' : '',
+//             // '[&>div]:hidden [&:hover>div]:inline-block'
+//         ]}>
+//         {col}
+//         <div class='float-right'>{() => $$(sortable[col]) ?
+//             ($$(sortdir[col]) === 'asc') ? <ExpandLessIcon /> : ($$(sortdir[col]) === 'desc') ? <ExpandMoreIcon /> : <SquareIcon /> : null}</div>
+//     </th>)
+//     Td(({ col, row, }) => {
+//         const edit = $(false)
+//         const inp = $<HTMLInputElement>()
+//         const ref = $<HTMLTableCellElement>()
 
-        return <td ref={ref} onClick={() => { edit(true); if (!isObservable(row[col])) row[col] = $(row[col]); useEffect(() => console.log($$(row[col]), data)) }}
-            class={['border-[1px] border-solid border-[lightgray] px-3 hover:bg-[#c4d7f5] w-[150px] p-0', col === 'age' ? 'text-right' : '']}>
-            {useMemo(() => $$(edit) ? <input style={{ width: () => $$(ref)?.offsetWidth }} class='px-2 m-0' ref={inp} onBlur={() => { edit(false); console.log('blur', $$(edit)) }} onChange={e => row[col](e.target.value)} value={row[col]}>{row[col]}</input> : <span class='px-2'>{row[col]}</span>)}
-            {/* <input style={{ width: () => $$(ref)?.offsetWidth }} class='p-0 m-0' ref={inp} onBlur={() => { edit(false); console.log('blur', $$(edit)) }} onChange={e => row[group](e.target.value)} value={row[group]}>{row[group]}</input> */}
-        </td>
-    })
-    Tr(tw('tr')`hover:bg-[#ebf5d5]`)
+//         useEffect(() => $$(inp)?.focus())
 
-    return <>
-        {() => $$(filter) && $$(filter).length > 0 ? <>{fi}<FilterOffIcon class='cursor-pointer inline-block' onClick={() => { showInput(false); filter(null) }} /></> : fi}
-        {
-            () => $$(showInput) ? <div ref={inputCont} class='inline-block'>
-                <input ref={inputRef} class='border' value={filter} onKeyup={e => { filter(e.target.value); console.log(e.target.value) }} onKeydown={e => { e.keyCode === 13 && (showInput(false), filter($$(changing))) }} />
-                <span class='bg-[#f8e3fa] border cursor-pointer' onClick={() => { showInput(false); filter(null) }}>✖</span>
-                <span class='bg-[#f7fae3] border cursor-pointer' onClick={() => { showInput(false) }}>✔</span></div> : null
-        }
-        <ViewColumnIcon class='cursor-pointer inline-block' onClick={() => { showColummn(true) }} />
-        {() => $$(showColummn) ? <></> : <></>}
+//         return <td ref={ref} onClick={() => { edit(true); if (!isObservable(row[col])) row[col] = $(row[col]); useEffect(() => console.log($$(row[col]), data)) }}
+//             class={['border-[1px] border-solid border-[lightgray] px-3 hover:bg-[#c4d7f5] w-[150px] p-0', col === 'age' ? 'text-right' : '']}>
+//             {useMemo(() => $$(edit) ? <input style={{ width: () => $$(ref)?.offsetWidth }} class='px-2 m-0' ref={inp} onBlur={() => { edit(false); console.log('blur', $$(edit)) }} onChange={e => row[col](e.target.value)} value={row[col]}>{row[col]}</input> : <span class='px-2'>{row[col]}</span>)}
+//             {/* <input style={{ width: () => $$(ref)?.offsetWidth }} class='p-0 m-0' ref={inp} onBlur={() => { edit(false); console.log('blur', $$(edit)) }} onChange={e => row[group](e.target.value)} value={row[group]}>{row[group]}</input> */}
+//         </td>
+//     })
+//     Tr(tw('tr')`hover:bg-[#ebf5d5]`)
 
-        {table}
-    </>
-}
+//     return <>
+//         {() => $$(filter) && $$(filter).length > 0 ? <>{fi}<FilterOffIcon class='cursor-pointer inline-block' onClick={() => { showInput(false); filter(null) }} /></> : fi}
+//         {
+//             () => $$(showInput) ? <div ref={inputCont} class='inline-block'>
+//                 <input ref={inputRef} class='border' value={filter} onKeyup={e => { filter(e.target.value); console.log(e.target.value) }} onKeydown={e => { e.keyCode === 13 && (showInput(false), filter($$(changing))) }} />
+//                 <span class='bg-[#f8e3fa] border cursor-pointer' onClick={() => { showInput(false); filter(null) }}>✖</span>
+//                 <span class='bg-[#f7fae3] border cursor-pointer' onClick={() => { showInput(false) }}>✔</span></div> : null
+//         }
+//         <ViewColumnIcon class='cursor-pointer inline-block' onClick={() => { showColummn(true) }} />
+//         {() => $$(showColummn) ? <></> : <></>}
+
+//         {table}
+//     </>
+// }
 const App = (): JSX.Element => {
 
     return <>

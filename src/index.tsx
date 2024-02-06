@@ -1,2 +1,3 @@
 export * from './Table'
-export * from './useTable'
+export * from './useData'
+export * from './useWheelPan'

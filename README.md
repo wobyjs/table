@@ -14,18 +14,18 @@ npm start
 
 ## Example
 
-https://github.com/wongchichong/voby-table
+https://github.com/wongchichong/woby-table
 
 ## Usage
 
 ```js
-import { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, Observable } from "voby"
+import { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, Observable } from "woby"
 import { groupBy, orderBy, filter as ft, chain, sortBy, sumBy, isArray, omit, map } from "lodash-es"
 import { Table, TableProps, useTable } from '../src/index'
-import { tw } from 'voby-styled'
-import { useClickAway, make } from 'use-voby'
-import { Wheeler } from 'voby-wheeler'
-import 'voby-wheeler/dist/output.css'
+import { tw } from 'woby-styled'
+import { useClickAway, make } from 'use-woby'
+import { Wheeler } from 'woby-wheeler'
+import 'woby-wheeler/dist/output.css'
 
 const ExpandMoreIcon = (props: JSX.SVGAttributes<SVGElement>) => <svg class="inline-block" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" {...props}><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z" /></svg>
 const ExpandLessIcon = (props: JSX.SVGAttributes<SVGElement>) => <svg class="inline-block" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" {...props}><path d="m296-345-56-56 240-240 240 240-56 56-184-184-184 184Z" /></svg>

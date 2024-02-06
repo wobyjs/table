@@ -1,10 +1,11 @@
-import { $, $$, render, useEffect, useMemo, ObservableMaybe, Observable, ObservableReadonly, type JSX, } from "voby"
-import { tw } from 'voby-styled'
+import { $, $$, render, useEffect, useMemo, ObservableMaybe, Observable, ObservableReadonly, type JSX, } from 'woby'
+import { tw } from 'woby-styled'
 
 import '../dist/output.css'
-import { Slider } from "voby-slider"
-import 'voby-slider/dist/output.css'
-import { $$$, ObservantAll } from "use-voby"
+import { Slider } from "woby-slider"
+import 'woby-slider/dist/output.css'
+import { $$$, ObservantAll } from "use-woby"
+import { useData } from './useData'
 
 
 
@@ -12,10 +13,10 @@ export type GroupedLike<T> = {
     [x: string]: T | GroupedLike<T>
 } | T
 
-export interface TableProps<T> extends Omit<JSX.TableHTMLAttributes<HTMLTableElement>, 'data' | 'group'> {
+export type TableProps<T extends T[]> = Omit<JSX.TableHTMLAttributes<HTMLTableElement>, 'data' | 'group'> & {
     data: ObservableMaybe<GroupedLike<T>>,
     collapsed?: ObservableMaybe<boolean>,
-    Th?: (props: JSX.ThHTMLAttributes<HTMLTableCellElement> & { col: string, index: number, cols: string[], group: string[], sortable: Observable<boolean>, sortDirection: Observable<'asc' | 'dsc' | 'none'> }) => HTMLTableCellElement
+    Th?: (props: JSX.ThHTMLAttributes<HTMLTableCellElement> & { col: string, index: number, columns: string[], group: string[], sortable?: Observable<boolean>, sortDireotion?: Observable<'asc' | 'dsc' | 'none'> }) => HTMLTableCellElement
     Td?: (props: JSX.TdHTMLAttributes<HTMLTableCellElement> & { col: string, value: any, index: number, row: T }) => HTMLTableCellElement
     Tr?: (props: JSX.HTMLAttributes<HTMLTableRowElement>) => HTMLTableRowElement
     /** tr for nested table*/
@@ -31,9 +32,35 @@ export interface TableProps<T> extends Omit<JSX.TableHTMLAttributes<HTMLTableEle
     /** group = group group */
     preprocessor?: (data: GroupedLike<T>, group?: string[]) => GroupedLike<T>,
     pageSize?: ObservableMaybe<number>,
+    hideScrollbar?: ObservableMaybe<boolean>,
+    noWheel?: ObservableMaybe<boolean>,
+} & ReturnType<typeof useData<T>>
+
+const sortByOrder = <T,>(sourceArray: T[], orderArray: T[]): T[] => {
+    const orderMap = new Map()
+
+    // Create a map to store the index of each element in the orderArray
+    orderArray.forEach((element, index) => {
+        orderMap.set(element, index)
+    })
+
+    // Sort the sourceArray based on the index in the orderArray
+    return sourceArray.sort((a, b) => {
+        const indexA = orderMap.get(a)
+        const indexB = orderMap.get(b)
+
+        if (indexA !== undefined && indexB !== undefined) {
+            return indexA - indexB
+        }
+
+        // If elements are not found in the orderArray, keep their original order
+        return 0
+    })
 }
 
-const renderData = <T,>({ data, Th, Td, Tr, Gr, Nr, Gt, Gd, group, pageSize = $(10), ...props }: Omit<TableProps<T>, 'data'> & { data: ObservableMaybe<T[]> }) => {
+
+const renderData = <T extends T[],>(props: Omit<TableProps<T>, 'data'> & { data: ObservableMaybe<T> }) => {
+    const { data, Th, Td, Tr, Gr, Nr, Gt, Gd, group, orderColumns, pageSize = $(10), hideScrollbar = $(false), noWheel = $(false), className, class: cls, } = props
     const startIndex = $(0)
     const ROW_HEIGHT = $(10)
     const row1 = $<HTMLTableRowElement>()
@@ -96,26 +123,29 @@ const renderData = <T,>({ data, Th, Td, Tr, Gr, Nr, Gt, Gd, group, pageSize = $(
     }
 
     const nd = useMemo(() => $$(data).slice($$(startIndex), $$(endIndex)))
+
+    const sortedKeys = useMemo(() => sortByOrder(Object.keys($$(data)[0]), $$(orderColumns) ?? []))
     return <div>
-        <table {...props} onWheel={wheel} onMouseMove={wheel} ref={tableRef} class='inline-block'>
+        <table {...props} onWheel={e => props.onWheel ?? ($$(noWheel) ? undefined : wheel(e))} onMouseMove={e => $$(noWheel) ? undefined : wheel(e)} ref={tableRef} class={[cls, className, () => !$$(hideScrollbar) ? 'inline-block' : '']}>
             <thead>
                 <tr ref={hr}>
-                    {() => Object.keys($$(data)[0]).map((col, index, cols) => Th({ col, index, cols, group }))}
+                    {() => $$(sortedKeys).map((col, index, columns) => Th({ col, index, columns, group }))}
                 </tr>
             </thead>
             <tbody>
                 {() => $$(nd).map((row, index) => (
                     <Tr>
-                        {Object.keys(row).map((col) => (
+                        {() => $$(sortedKeys).map((col) => (
                             <Td ref={index === 0 ? row1 : undefined} {...{ value: row[col], col, index, row }} />
                         ))}
                     </Tr>
                 ))}
             </tbody>
         </table>
-        {() => $$(data).length > $$(pageSize) ?
-            <Slider
-                class="w-[4px] inline-block top-[20px]
+        {
+            () => !$$(hideScrollbar) && $$(data).length > $$(pageSize) ?
+                <Slider
+                    class="w-[4px] inline-block m-0
                 [&>.rangesliderFill]:bg-[#e6e6e6]
                 active:[&>.rangesliderHandle]:w-[30px] 
                 active:[&>.rangesliderHandle]:h-[30px] 
@@ -131,24 +161,25 @@ const renderData = <T,>({ data, Th, Td, Tr, Gr, Nr, Gt, Gd, group, pageSize = $(
                 [&>.rangesliderHandle]:rounded-[50%]
                 [&_.rangesliderHandle-tooltip]:opacity-40
                 "
-                style={{ height: () => $$(tableRef)?.offsetHeight - $$(hr)?.clientHeight /* , top: () => $$(row1)?.clientHeight */ }}
-                min={0}
-                max={() => $$(data).length - $$(pageSize)}
-                value={startIndex}
-                onChange={startIndex}
-                formatTooltip={v => $$(v) + $$(pageSize)}
-                orientation="vertical"
-                reverse
-            //alwaysOnTooltip
-            // onChange={value}
-            // onChangeComplete={value}
-            /> : null}
+                    style={{ height: () => ($$(tableRef)?.offsetHeight - $$(hr)?.clientHeight), /* top: () => $$(hr)?.clientHeight */ }}
+                    min={0}
+                    max={() => $$(data).length - $$(pageSize)}
+                    value={startIndex}
+                    onChange={startIndex}
+                    formatTooltip={v => $$(v) + $$(pageSize)}
+                    orientation="vertical"
+                    reverse
+                //alwaysOnTooltip
+                // onChange={value}
+                // onChangeComplete={value}
+                /> : null
+        }
     </div>
 }
 
-export const Table = <T,>({ data: dt, collapsed, ...props }: TableProps<T>) => {
+export const Table = <T extends T[],>({ data: dt, collapsed, ...props }: TableProps<T>) => {
     const np: TableProps<T> = {
-        Th: ({ cols }) => <th>{cols}</th>,
+        Th: ({ columns }) => <th>{columns}</th>,
         Td: ({ col, row, }) => <td class='border-[1px] border-solid border-[lightgray]'>{row[col]}</td>,
         Tr: tw('tr')``,
         Nr: tw('tr')``,
@@ -159,9 +190,11 @@ export const Table = <T,>({ data: dt, collapsed, ...props }: TableProps<T>) => {
     } as any
 
     const { Nr, Gr, Gt, Gd, Td, Tr, Th, preprocessor, class: cls, className, ...rp } = np
-    const data = useMemo(() => preprocessor ? preprocessor($$(dt)) : $$(dt))
+    const data = useMemo(() => preprocessor ? preprocessor($$(dt) as any) : $$(dt))
 
-    return (!$$(data) ? null : Array.isArray($$(data)) ? renderData({ ...np, data, group: [props.group].flat().filter(n => !!n), }) :
+    return (!$$(data) ? null : Array.isArray($$(data)) ?
+        //@ts-ignore
+        renderData({ ...np, data: data as Observable<T>, class: [cls, className], group: [props.group].flat().filter(n => !!n), }) :
         <table {...rp} class={[className, cls]}>
             <tbody>
                 {Object.keys($$(data)).map((g, index, d) => {

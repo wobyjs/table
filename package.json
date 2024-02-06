@@ -1,10 +1,10 @@
 {
-    "name": "voby-table",
-    "version": "1.0.0",
+    "name": "woby-table",
+    "version": "1.0.1",
     "description": "table ui component for voby",
     "keywords": [
-        "voby",
-        "voby-table",
+        "woby",
+        "woby-table",
         "table",
         "component",
         "ui"
@@ -25,7 +25,7 @@
         "url": "git@github.com:voby-component/table.git"
     },
     "bugs": {
-        "url": "http://github.com/voby-component/table/issues"
+        "url": "http://github.com/woby-component/table/issues"
     },
     "license": "MIT",
     "scripts": {
@@ -49,19 +49,18 @@
     },
     "peerDependencies": {
         "lodash-es": "^4.17.21",
-        "voby": "workspace:../woby",
-        "voby-wheeler": "workspace:../voby-wheeler",
-        "voby-slider": "workspace:../voby-slider",
-        "voby-styled": "workspace:../voby-styled",
-        "use-voby": "workspace:../use-voby"
+        "use-woby": "workspace:../use-woby",
+        "woby": "workspace:../woby",
+        "woby-slider": "workspace:../woby-slider",
+        "woby-styled": "workspace:../woby-styled",
+        "woby-wheeler": "workspace:../woby-wheeler"
     },
     "devDependencies": {
-        "@types/lodash-es": "^4.17.9",
+        "@types/lodash-es": "^4.17.12",
         "cross-env": "^7.0.0",
-        "lodash-es": "^4.17.21",
-        "tailwindcss": "^3.3.3",
-        "vite": "^4.4.9",
+        "tailwindcss": "^3.4.1",
+        "vite": "^4.5.2",
         "vite-plugin-dts": "^2.3.0",
-        "vite-plugin-svgr": "^3.2.0"
+        "vite-plugin-svgr": "^3.3.0"
     }
 }

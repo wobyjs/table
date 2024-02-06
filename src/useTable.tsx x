@@ -1,10 +1,10 @@
-import { $, $$, render, useEffect, useMemo, ObservableMaybe, Observable, ObservableReadonly, type JSX, } from "voby"
-import { tw } from 'voby-styled'
+import { $, $$, render, useEffect, useMemo, ObservableMaybe, Observable, ObservableReadonly, type JSX, } from 'woby'
+import { tw } from 'woby-styled'
 
 import '../dist/output.css'
-import { Slider } from "voby-slider"
-import 'voby-slider/dist/output.css'
-import { $$$, ObservantAll } from "use-voby"
+import { Slider } from "woby-slider"
+import 'woby-slider/dist/output.css'
+import { $$$, ObservantAll } from "use-woby"
 import { GroupedLike, Table, TableProps } from "./Table"
 
 
@@ -172,7 +172,9 @@ export const useTable = <T,>({ data: dt, collapsed, ...props }: UseTableProps<T>
         const lp = { Th, Td, Tr, Nr, Gt, Gr, Gd, preprocessor, }
         const data = useMemo(() => preprocessor ? preprocessor($$(dt) as any) : $$(dt))
 
-        return (!$$(data) ? null : Array.isArray($$(data)) ? renderData({ ...lp, data, group: [$$(props.group)].flat().filter(n => !!n), }) :
+        return (!$$(data) ? null : Array.isArray($$(data)) ?
+            //@ts-ignore
+            renderData({ ...lp, data, group: [$$(props.group)].flat().filter(n => !!n), }) :
             <table {...rp} class={[className, cls]}>
                 <tbody>
                     {Object.keys($$(data)).map((g, index, d) => {
@@ -192,6 +194,7 @@ export const useTable = <T,>({ data: dt, collapsed, ...props }: UseTableProps<T>
                                     //         <td>{renderData({ ...np, group: ks, data: gt })}</td>
                                     //     </Nr>
                                     //     :
+                                    //@ts-ignore
                                     <Gt {...{ ...np, group: ks, data: gt, collapsed, }} />
                                 ) : null
                             })}
