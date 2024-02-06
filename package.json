@@ -50,10 +50,10 @@
     "peerDependencies": {
         "lodash-es": "^4.17.21",
         "use-woby": "workspace:../use-woby",
-        "woby": "workspace:../woby",
-        "woby-slider": "workspace:../woby-slider",
-        "woby-styled": "workspace:../woby-styled",
-        "woby-wheeler": "workspace:../woby-wheeler"
+        "woby": "workspace:^",
+        "woby-slider": "workspace:^",
+        "woby-styled": "workspace:^",
+        "woby-wheeler": "workspace:^"
     },
     "devDependencies": {
         "@types/lodash-es": "^4.17.12",
