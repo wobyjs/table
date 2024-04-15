@@ -29,16 +29,20 @@
     },
     "license": "MIT",
     "scripts": {
+        "git": "git add . && git commit -m \"Bump version\" && git push",
+        "bump": "pnpm version patch",
+        "npmjs": "pnpm publish",
+        "release": "run-s -c git bump npmjs",
         "start": "vite dev",
         "compile": "father build && lessc assets/index.less assets/index.css",
         "deploy": "npm run docs:build && npm run docs:deploy",
         "prettier": "prettier --write \"**/*.{js,jsx,tsx,ts,less,md,json}\"",
         "css:watch": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
         "css": "tailwindcss -i ./src/input.css -o ./dist/output.css",
-        "declaration": "tsc --build --force --declaration --emitDeclarationOnly --verbose",
-        "declaration:watch": "tsc --build --force --declaration --emitDeclarationOnly --verbose --watch",
+        "declaration": "tsc --build --force --declaration --emitDeclarationOnly --declarationMap  --verbose",
+        "declaration:watch": "tsc --build --force --declaration --emitDeclarationOnly --declarationMap  --verbose --watch",
         "watch": "run-p build:watch css:watch",
-        "build": "run-s css build:vite css",
+        "build": "run-s css build:vite css declaration",
         "build:web": "vite build --config=vite.config.web.ts --force --mode production",
         "web": "vite preview --config=vite.config.web.ts --host",
         "dev:only": "vite --config=vite.config.web.ts --force --mode dev --host",
@@ -49,18 +53,21 @@
     },
     "peerDependencies": {
         "lodash-es": "^4.17.21",
-        "use-woby": "workspace:^",
-        "woby": "workspace:^",
-        "woby-slider": "workspace:^",
-        "woby-styled": "workspace:^",
-        "woby-wheeler": "workspace:^"
+        "use-woby": "workspace:../use-woby",
+        "woby": "workspace:../woby",
+        "woby-slider": "workspace:../woby-slider",
+        "woby-styled": "workspace:../woby-styled",
+        "woby-wheeler": "workspace:../woby-wheeler"
     },
     "devDependencies": {
         "@types/lodash-es": "^4.17.12",
         "cross-env": "^7.0.0",
-        "tailwindcss": "^3.4.1",
-        "vite": "^4.5.2",
-        "vite-plugin-dts": "^2.3.0",
-        "vite-plugin-svgr": "^3.3.0"
+        "tailwindcss": "^3.4.3",
+        "tailwindcss-elevation": "^2.0.0",
+        "vite": "^5.2.8",
+        "vite-plugin-svgr": "^4.2.0"
+    },
+    "dependencies": {
+        "typescript": "5.4.4"
     }
 }

@@ -22,8 +22,6 @@ export const useWheelPan = <T extends HTMLElement>(div: Observable<T>) => {
         startX = event.clientX || event.touches[0].clientX
         startY = event.clientY || event.touches[0].clientY
 
-        // Set the capture to track the pointer move event outside the target
-        $$(div).setPointerCapture(event.pointerId)
         startScroll = true
     }
 
@@ -40,6 +38,9 @@ export const useWheelPan = <T extends HTMLElement>(div: Observable<T>) => {
         // Update the start positions for the next move event
         startX = event.clientX || event.touches[0].clientX
         startY = event.clientY || event.touches[0].clientY
+
+        // Set the capture to track the pointer move event outside the target
+        $$(div).setPointerCapture(event.pointerId)
 
         // Prevent the default behavior to stop the page from scrolling
         event.preventDefault()

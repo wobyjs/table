@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import path from 'path'
-import dts from 'vite-plugin-dts'
+// import dts from 'vite-plugin-dts'
 import svgr from "vite-plugin-svgr"
 
 // import svgLoader from 'vite-svg-loader'
@@ -11,12 +11,12 @@ const config = defineConfig({
         lib: {
             entry: ["./src/index.tsx"],
             name: "woby-list",
-            formats: ['cjs', 'es', 'umd'],
+            formats: [/*'cjs', '*/'es'/*, 'umd'*/],
             fileName: (format: string, entryName: string) => `${entryName}.${format}.js`
         },
         sourcemap: true,
         rollupOptions: {
-            external: ['woby', 'woby/jsx-runtime', 'oby', 'woby/jsx-runtime'],
+            external: ['woby', 'woby/jsx-runtime', 'oby', 'woby/jsx-runtime', 'woby-styled',],
             output: {
                 globals: {
                     'woby': 'woby',
@@ -51,7 +51,7 @@ const config = defineConfig({
             //  A minimatch pattern, or array of patterns, which specifies the files in the build the plugin should ignore. By default no files are ignored.
             exclude: "",
         }),
-        dts({ entryRoot: './src/lib', outputDir: './dist/types' })
+        // dts({ entryRoot: './src/lib', outputDir: './dist/types' })
     ],
     resolve: {
         alias: {

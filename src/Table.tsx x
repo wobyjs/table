@@ -16,7 +16,6 @@ export type GroupedLike<T> = {
 export type TableProps<T extends T[]> = Omit<JSX.TableHTMLAttributes<HTMLTableElement>, 'data' | 'group'> & {
     data: ObservableMaybe<GroupedLike<T>>,
     collapsed?: ObservableMaybe<boolean>,
-    orderColumns?: string[],
     Th?: (props: JSX.ThHTMLAttributes<HTMLTableCellElement> & { col: string, index: number, columns: string[], group: string[], sortable?: Observable<boolean>, sortDireotion?: Observable<'asc' | 'dsc' | 'none'> }) => HTMLTableCellElement
     Td?: (props: JSX.TdHTMLAttributes<HTMLTableCellElement> & { col: string, value: any, index: number, row: T }) => HTMLTableCellElement
     Tr?: (props: JSX.HTMLAttributes<HTMLTableRowElement>) => HTMLTableRowElement
@@ -164,7 +163,6 @@ const renderData = <T extends T[],>(props: Omit<TableProps<T>, 'data'> & { data:
                 "
                     style={{ height: () => ($$(tableRef)?.offsetHeight - $$(hr)?.clientHeight), /* top: () => $$(hr)?.clientHeight */ }}
                     min={0}
-                    /** @ts-ignore */
                     max={() => $$(data).length - $$(pageSize)}
                     value={startIndex}
                     onChange={startIndex}
@@ -181,13 +179,13 @@ const renderData = <T extends T[],>(props: Omit<TableProps<T>, 'data'> & { data:
 
 export const Table = <T extends T[],>({ data: dt, collapsed, ...props }: TableProps<T>) => {
     const np: TableProps<T> = {
-        Th: ({ columns }) => <th>{columns}</th>,
-        Td: ({ col, row, }) => <td class='border-[1px] border-solid border-[lightgray]'>{row[col]}</td>,
+        Th: ({ columns }: { columns?} = {}) => <th>{columns}</th>,
+        Td: ({ col, row, }: { col?: string, row?: Record<string, any> } = {}) => <td class='border-[1px] border-solid border-[lightgray]'>{row?.[col]}</td>,
         Tr: tw('tr')``,
         Nr: tw('tr')``,
         Gt: (props) => <Table {...props} />,
         Gr: tw('tr')`cursor-pointer`,
-        Gd: ({ group, groups }) => <td class='border-[1px] border-solid border-[lightgray]' colSpan={groups.length}>{group}</td>,
+        Gd: ({ group, groups }: { group?, groups?: [] } = {}) => <td class='border-[1px] border-solid border-[lightgray]' colSpan={groups?.length}>{group}</td>,
         ...props
     } as any
 

@@ -29,7 +29,6 @@
         "noPropertyAccessFromIndexSignature": false,
         "noUnusedLocals": false,
         "noUnusedParameters": false,
-        "outDir": "dist",
         "pretty": true,
         "skipDefaultLibCheck": true,
         "skipLibCheck": true,
@@ -45,15 +44,13 @@
         "noUncheckedIndexedAccess": false,
         "baseUrl": ".",
         "rootDir": "./src",
-        "typeRoots": [
-            "types"
-        ],
-        // "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
-        // "composite": true,
     },
     "exclude": [
         "node_modules",
-        "vite.config.ts",
-        "dist*"
+        "vite.*.*ts",
+        "vitest.*.*ts",
+        "tailwind.config.ts",
+        "docs",
+        "dist"
     ]
 }
