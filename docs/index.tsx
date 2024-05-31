@@ -1,6 +1,6 @@
 import { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, Observable } from 'woby'
-import { groupBy, orderBy, filter as ft, chain, sortBy, sumBy, isArray, omit, map } from "lodash-es"
-import { Table, TableProps, useData } from '../src/index'
+import { groupBy, orderBy, filters as ft, chain, sortBy, sumBy, isArray, omit, map } from "lodash-es"
+import { /* Table, TableProps,  */useData } from '../src/index'
 import { tw } from 'woby-styled'
 import { useClickAway, } from 'use-woby'
 import { Wheeler, useRecordWheeler } from 'woby-wheeler'
@@ -92,42 +92,44 @@ const nestedGroupData = chain(db)
 const MainTab = () => {
     const inputRef = $<HTMLInputElement>()
     const inputCont = $<HTMLInputElement>()
+    const showColummn = $(false)
+    const showInput = $(false)
 
-    const { filter, showInput, data, sortable, sortdir, filterable, showColummn, sortClick, showColumns, orderColumns } =
-        useData({ data: db, sortable: { name: true, age: true, country: true }, filterable: { id: false, add: false } })
+    const { filters, /* showInput,  */data, sorts, /* , sortdir, filterable, */  sortClick, shows, order } =
+        useData<{ id: number, name: string, age: number, country: string, add: string, }>({ data: db, sortable: { name: true, age: true, country: true }, filterable: { id: false, add: false } })
 
     useClickAway(inputCont, () => showInput(false))
     useEffect(() => $$(showInput) && $$(inputRef) && $$(inputRef).focus())
 
-    useEffect(() => console.log($$(orderColumns)))
-    orderColumns(['name', 'age', 'country', 'add', 'id',])
+    useEffect(() => console.log($$(order)))
+    order(['name', 'age', 'country', 'add', 'id',])
 
-    const fi = <FilterIcon class='cursor-pointer inline-block' onClick={() => { showInput(true); $$(filter) }} />
+    const fi = <FilterIcon class='cursor-pointer inline-block' onClick={() => { showInput(true); $$(filters) }} />
 
     return <>
         <ViewColumnIcon class='cursor-pointer inline-block' onClick={() => { showColummn(true) }} />
-        {() => $$(filter) && $$(filter).length > 0 ? <>{fi}<FilterOffIcon class='cursor-pointer inline-block' onClick={() => { showInput(false); filter(null) }} /></> : fi}
+        {() => $$(filters) && $$(filters).length > 0 ? <>{fi}<FilterOffIcon class='cursor-pointer inline-block' onClick={() => { showInput(false); filters(null) }} /></> : fi}
         {
             () => $$(showInput) ? <div ref={inputCont} class='inline-block'>
-                <input ref={inputRef} class='border' value={filter} onKeyup={e => { filter(e.target.value); console.log(e.target.value) }} onKeydown={e => { e.keyCode === 13 && (showInput(false), filter(e.target.value)) }} />
-                <span class='bg-[#f8e3fa] border cursor-pointer' onClick={() => { showInput(false); filter(null) }}>✖</span>
+                <input ref={inputRef} class='border' value={filters} onKeyup={e => { filters(e.target.value); console.log(e.target.value) }} onKeydown={e => { e.keyCode === 13 && (showInput(false), filters(e.target.value)) }} />
+                <span class='bg-[#f8e3fa] border cursor-pointer' onClick={() => { showInput(false); filters(null) }}>✖</span>
                 <span class='bg-[#f7fae3] border cursor-pointer' onClick={() => { showInput(false) }}>✔</span></div> : null
         }
-        <Wheeler {...useRecordWheeler(showColumns)} open={showColummn} toolbar />
+        <Wheeler {...useRecordWheeler(shows)} open={showColummn} toolbar />
 
-        <Table data={data} class='w-1/2' orderColumns={orderColumns}
+        <Table data={data} class='w-1/2' order={order}
             TTh={() => <tr>
                 <th colspan={2} class='text-[blue] border-[1px] border-solid border-[lightgray] uppercase'>Info</th>
                 <th colspan={2} class='text-[blue] border-[1px] border-solid border-[lightgray] uppercase'>Countrry</th>
                 <th class='text-[blue] border-[1px] border-solid border-[lightgray] uppercase'></th></tr>}
-            Th={({ col }) => $$(showColumns[col]) ? <th onClick={() => sortClick(col)}
+            Th={({ col }) => $$(shows[col]) ? <th onClick={() => sortClick(col)}
                 class={['text-[blue] border-[1px] border-solid border-[lightgray] uppercase',
                     () => $$(sortable[col]) ? 'cursor-pointer' : '',
                     // '[&>div]:hidden [&:hover>div]:inline-block'
                 ]}>
                 {col}
                 <div class='float-right'>{() => $$(sortable[col]) ?
-                    ($$(sortdir[col]) === 'asc') ? <ExpandLessIcon /> : ($$(sortdir[col]) === 'desc') ? <ExpandMoreIcon /> : <SquareIcon /> : null}</div>
+                    ($$(sorts[col]) === 'asc') ? <ExpandLessIcon /> : ($$(sortdir[col]) === 'desc') ? <ExpandMoreIcon /> : <SquareIcon /> : null}</div>
             </th> : null}
             Td={({ col, row, }) => {
                 const edit = $(false)
@@ -168,7 +170,7 @@ const MainTab = () => {
 //     const sortorder: string[] = []
 
 //     const data = $(db)
-//     const filter = $<string>(null)
+//     const filters = $<string>(null)
 //     const showInput = $(false)
 //     const showColummn = $(false)
 //     const inputRef = $<HTMLInputElement>()
@@ -194,9 +196,9 @@ const MainTab = () => {
 //             }
 
 //         const keyValueArray = Object.entries(sortdir).map(([key, value]) => ({ key, value }))
-//         const sorts = keyValueArray.filter(k => $$(k.value) !== '')
+//         const sorts = keyValueArray.filters(k => $$(k.value) !== '')
 
-//         const fb = ft(db, d => !$$(filter) ? true : Object.keys(d).filter(k => $$(filterable[k])).some(k => d[k]?.toString().toLocaleLowerCase().indexOf($$(filter).toLocaleLowerCase()) >= 0))
+//         const fb = ft(db, d => !$$(filters) ? true : Object.keys(d).filters(k => $$(filterable[k])).some(k => d[k]?.toString().toLocaleLowerCase().indexOf($$(filters).toLocaleLowerCase()) >= 0))
 //         if (sorts.length > 0)
 //             data(orderBy(fb, sortorder, sortorder.map(k => $$(sortdir[k])) as any))
 //         else
@@ -205,10 +207,10 @@ const MainTab = () => {
 //     useClickAway(inputCont, () => showInput(false))
 //     useEffect(() => $$(showInput) && $$(inputRef) && $$(inputRef).focus())
 //     useEffect(() => {
-//         $$(filter)
+//         $$(filters)
 //         sortClick("")
 //     })
-//     const fi = <FilterIcon class='cursor-pointer inline-block' onClick={() => { showInput(true); $$(filter) }} />
+//     const fi = <FilterIcon class='cursor-pointer inline-block' onClick={() => { showInput(true); $$(filters) }} />
 
 //     const { Th, Td, Tr, table } = useTable({ data, class: 'w-1/2' })
 //     Th(({ col, }) => <th onClick={() => sortClick(col)}
@@ -236,11 +238,11 @@ const MainTab = () => {
 //     Tr(tw('tr')`hover:bg-[#ebf5d5]`)
 
 //     return <>
-//         {() => $$(filter) && $$(filter).length > 0 ? <>{fi}<FilterOffIcon class='cursor-pointer inline-block' onClick={() => { showInput(false); filter(null) }} /></> : fi}
+//         {() => $$(filters) && $$(filters).length > 0 ? <>{fi}<FilterOffIcon class='cursor-pointer inline-block' onClick={() => { showInput(false); filters(null) }} /></> : fi}
 //         {
 //             () => $$(showInput) ? <div ref={inputCont} class='inline-block'>
-//                 <input ref={inputRef} class='border' value={filter} onKeyup={e => { filter(e.target.value); console.log(e.target.value) }} onKeydown={e => { e.keyCode === 13 && (showInput(false), filter($$(changing))) }} />
-//                 <span class='bg-[#f8e3fa] border cursor-pointer' onClick={() => { showInput(false); filter(null) }}>✖</span>
+//                 <input ref={inputRef} class='border' value={filters} onKeyup={e => { filters(e.target.value); console.log(e.target.value) }} onKeydown={e => { e.keyCode === 13 && (showInput(false), filters($$(changing))) }} />
+//                 <span class='bg-[#f8e3fa] border cursor-pointer' onClick={() => { showInput(false); filters(null) }}>✖</span>
 //                 <span class='bg-[#f7fae3] border cursor-pointer' onClick={() => { showInput(false) }}>✔</span></div> : null
 //         }
 //         <ViewColumnIcon class='cursor-pointer inline-block' onClick={() => { showColummn(true) }} />

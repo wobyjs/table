@@ -4,9 +4,14 @@ import { $$$, ObservantAll, make, } from "use-woby"
 import { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, type Observable, ObservableReadonly } from 'woby'
 import { groupBy, orderBy, filter as ft, chain, sortBy, sumBy, isArray, omit, map, filter } from "lodash-es"
 import 'woby-wheeler/dist/output.css'
+import { customSort } from './useSort'
 
 
-export type SortDir = 'asc' | 'desc' | ''
+export enum SortDir {
+    NoSort = 0,
+    Asc = 1,
+    Des = 2,
+}
 export type ToObservable<T, V> = Record<keyof T, Observable<V>>
 export type SortDirRecord<T> = Record<keyof T, Observable<SortDir>>
 
@@ -24,21 +29,6 @@ export type IData<T> = {
     // canOrder?: ObservableMaybe<boolean>
 }
 
-function customSort<T>(arr: T[], order: T[]): T[] {
-    const orderIndex = {} as any
-
-    order.forEach((value, index) => {
-        orderIndex[value] = index
-    })
-
-    return arr.sort((a, b) => {
-        const indexA = orderIndex[a] !== undefined ? orderIndex[a] : order.length
-        const indexB = orderIndex[b] !== undefined ? orderIndex[b] : order.length
-
-        return indexA - indexB
-    })
-}
-
 export const useFlags = <T,>(db: ObservableMaybe<T[]>) => {
     const canSorts = {} as ToObservable<T, boolean>
     const canHides = {} as ToObservable<T, boolean>
@@ -53,7 +43,7 @@ export const useFlags = <T,>(db: ObservableMaybe<T[]>) => {
     useEffect(() => {
         if (!$$(db)) return
 
-        const ks = Object.keys($$(db)[0])
+        const ks = Object.keys($$(db)?.[0] ?? {})
 
         ks.forEach(k => {
             !canSorts[k] && (canSorts[k] = $(true))
@@ -92,10 +82,10 @@ export const useData = <T,>(db: ObservableMaybe<T[]>) => {
     useEffect(() => {
         if (!$$(db)) return
 
-        const ks = Object.keys($$(db)[0])
+        const ks = Object.keys($$(db)?.[0] ?? {})
 
         ks.forEach(k => {
-            !sorts[k] && (sorts[k] = $(''))
+            !sorts[k] && (sorts[k] = $(SortDir.NoSort))
             !filters[k] && (filters[k] = $(''))
             !shows[k] && (shows[k] = $(true))
         })
@@ -107,21 +97,24 @@ export const useData = <T,>(db: ObservableMaybe<T[]>) => {
     const sortorder: string[] = []
     const sortClick = (col: string) => {
         const sd = sorts[col]
-        if ($$(sd) === '') {
-            sd('asc')
-            if (sortorder.indexOf(col) == -1)
-                sortorder.push(col)
-        }
-        else if ($$(sd) === 'asc') {
-            sd('desc')
-            if (sortorder.indexOf(col) == -1)
-                sortorder.push(col)
-        }
-        else if ($$(sd) === 'desc') {
-            sd('')
-            const pos = sortorder.indexOf(col)
-            sortorder.splice(pos, 1)
-        }
+        if (sd)
+            if ($$(sd) === SortDir.Asc) {
+                sd(SortDir.Asc)
+                if (sortorder.indexOf(col) == -1)
+                    sortorder.push(col)
+            }
+            else if ($$(sd) === SortDir.Des) {
+                sd(SortDir.NoSort)
+                const pos = sortorder.indexOf(col)
+                sortorder.splice(pos, 1)
+            }
+            else //($$(sd) === SortDir.NoSort)
+            {
+                sd(SortDir.Asc)
+                if (sortorder.indexOf(col) == -1)
+                    sortorder.push(col)
+            }
+
 
         const keyValueArray = Object.entries(sorts).map(([key, value]) => ({ key, value }))
         const srts = keyValueArray.filter(k => $$(k.value) !== '')
@@ -147,14 +140,17 @@ export const useData = <T,>(db: ObservableMaybe<T[]>) => {
         else
             data(fb as any)
     }
-    useEffect(() => {
+
+    const ini = () => {
         $$(fullTextSearch)
         Object.keys(sorts).forEach(k => useEffect(() => { $$(sorts[k]); refresh(Math.random()) }))
         Object.keys(filters).forEach(k => useEffect(() => { $$(filters[k]); refresh(Math.random()) }))
         $(refresh)
         if ($$(db))
             sortClick("")
-    })
+    }
+    useEffect(ini)
+    ini()
 
     const haveFilters = useMemo(() => !$$(filters) && $$(filters) !== '')
     const haveSort = useMemo(() => Object.keys(sorts).some(k => $$(sorts[k]) !== ''))
