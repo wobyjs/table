@@ -101,7 +101,7 @@ const MainTab = () => {
     useClickAway(inputCont, () => showInput(false))
     useEffect(() => $$(showInput) && $$(inputRef) && $$(inputRef).focus())
 
-    useEffect(() => console.log($$(order)))
+    // useEffect(() => console.log($$(order)))
     order(['name', 'age', 'country', 'add', 'id',])
 
     const fi = <FilterIcon class='cursor-pointer inline-block' onClick={() => { showInput(true); $$(filters) }} />

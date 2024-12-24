@@ -1,7 +1,7 @@
 import '../dist/output.css'
 import 'woby-slider/dist/output.css'
 import { $, $$, render, store, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, type Observable, ObservableReadonly } from 'woby'
-import { groupBy, orderBy, filter as ft, chain, sortBy, sumBy, isArray, omit, map, filter } from "lodash-es"
+import { groupBy, orderBy, filter as ft, chain, sortBy, sumBy, isArray, omit, map, filter, includes, some } from "lodash-es"
 import 'woby-wheeler/dist/output.css'
 import { ToObservable } from './util'
 
@@ -23,8 +23,10 @@ export const useFilter = <T,>(db: ObservableMaybe<T[]>) => {
     const filtered = useMemo(() => {
         if (!$$(db)) return []
 
-        const f = $$(fullTextSearch)?.toLowerCase()
-        return !f?.length ? $$(db) : ft($$(db), d => Object.keys(d).some(k => $$(canFilters[k]) && d[k]?.toString().toLowerCase().includes(f)))
+        const searchText = $$(fullTextSearch)?.toLowerCase().split('\n').filter(d => d !== '')
+        return !searchText?.length ? $$(db) :
+            ft($$(db), item => some(searchText, text =>
+                Object.keys(item).some(k => $$(canFilters[k]) && includes(item[k]?.toString().toLowerCase(), text))))
     })
 
     return {

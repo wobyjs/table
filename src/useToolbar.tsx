@@ -1,4 +1,4 @@
-import { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, Observable, ObservableReadonly } from 'woby'
+import React, { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, Observable, ObservableReadonly } from 'woby'
 import { ToObservable } from './index'
 import { useClickAway, } from 'use-woby'
 import { Wheeler, useRecordWheeler } from 'woby-wheeler'
@@ -31,7 +31,7 @@ export const useToolbar = <T,>({ canHide, fullTextSearch, canFilter, shows }:
             {() => $$(fullTextSearch) ? <>{fi}<button title='Filter off' class='cursor-pointer inline-block align-middle' onClick={() => { showFullTextSearch(false); fullTextSearch(null) }}><FilterOffIcon /></button></> : fi}
             {
                 () => $$(showFullTextSearch) ? <div ref={inputCont} class='inline-block'>
-                    <input ref={inputRef} class='border' value={fullTextSearch} onKeyup={e => { fullTextSearch(e.target.value); console.log(e.target.value) }} onKeydown={e => { e.keyCode === 13 && (showFullTextSearch(false), fullTextSearch(e.target.value)) }} />
+                    <input ref={inputRef} class='border' value={fullTextSearch} onKeyUp={e => { fullTextSearch(e.target.value); console.log(e.target.value) }} onKeyDown={e => { e.keyCode === 13 && (showFullTextSearch(false), fullTextSearch(e.target.value)) }} />
                     <span title='Remove filter' class='bg-[#f8e3fa] border cursor-pointer' onClick={() => { showFullTextSearch(false); fullTextSearch(null) }}>✖</span>
                     <span title='Set filter' class='bg-[#f7fae3] border cursor-pointer' onClick={() => { showFullTextSearch(false) }}>✔</span></div> : null
             }

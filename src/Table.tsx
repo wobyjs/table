@@ -1,4 +1,4 @@
-import { $, $$, render, useEffect, useMemo, ObservableMaybe, Observable, ObservableReadonly, type JSX, } from 'woby'
+import React, { $, $$, render, useEffect, useMemo, ObservableMaybe, Observable, ObservableReadonly, type JSX, } from 'woby'
 import { tw } from 'woby-styled'
 
 import '../dist/output.css'
@@ -14,7 +14,7 @@ export type GroupedLike<T> = {
 } | T
 
 export type TableProps<T extends T[]> = Omit<JSX.TableHTMLAttributes<HTMLTableElement>, 'data' | 'group'> & {
-    data: ObservableMaybe<GroupedLike<T>>,
+    data: ObservableMaybe<string>, //ObservableMaybe<GroupedLike<T>>,
     collapsed?: ObservableMaybe<boolean>,
     orderColumns?: string[],
     Th?: (props: JSX.ThHTMLAttributes<HTMLTableCellElement> & { col: string, index: number, columns: string[], group: string[], sortable?: Observable<boolean>, sortDireotion?: Observable<'asc' | 'dsc' | 'none'> }) => HTMLTableCellElement
@@ -23,7 +23,7 @@ export type TableProps<T extends T[]> = Omit<JSX.TableHTMLAttributes<HTMLTableEl
     /** tr for nested table*/
     Nr?: (props: JSX.HTMLAttributes<HTMLTableRowElement>) => HTMLTableRowElement
     /** tr for group*/
-    Gt?: (props: TableProps<T> & { group: string[] }) => typeof Table<T>
+    Gt?: (props: TableProps<T> & { group: string[] }) => JSX.Child //typeof Table<T>
     /** Td fro group */
     Gr?: (props: JSX.HTMLAttributes<HTMLTableRowElement>) => HTMLTableRowElement
     /** Group subtable with */
@@ -60,8 +60,8 @@ const sortByOrder = <T,>(sourceArray: T[], orderArray: T[]): T[] => {
 }
 
 
-const renderData = <T extends T[],>(props: Omit<TableProps<T>, 'data'> & { data: ObservableMaybe<T> }) => {
-    const { data, Th, Td, Tr, Gr, Nr, Gt, Gd, group, orderColumns, pageSize = $(10), hideScrollbar = $(false), noWheel = $(false), className, class: cls, } = props
+const renderData = <T extends T[],>(props: Omit<TableProps<T>, 'data'> & { data: ObservableMaybe<string[]> }) => {
+    const { data, Th, Td, Tr, Gr, Nr, Gt, Gd, group, orderColumns, pageSize = $(10), hideScrollbar = $(false), noWheel = $(false), className, class: cls, ...rp } = props
     const startIndex = $(0)
     const ROW_HEIGHT = $(10)
     const row1 = $<HTMLTableRowElement>()
@@ -74,12 +74,12 @@ const renderData = <T extends T[],>(props: Omit<TableProps<T>, 'data'> & { data:
 
     let startY = 0 // Store the initial Y position
 
-    const handleMouseDown = (e: JSX.TargetedMouseEvent<HTMLTableElement> | JSX.TargetedTouchEvent<HTMLTableElement>) => {
+    const handlePointerDown = (e: JSX.TargetedMouseEvent<HTMLTableElement> | JSX.TargetedTouchEvent<HTMLTableElement>) => {
         // Record the initial Y position on mouse/touch down
         startY = (e as JSX.TargetedMouseEvent<HTMLTableElement>).clientY || (e as JSX.TargetedTouchEvent<HTMLTableElement>).touches[0].clientY
     }
 
-    const handleMouseUp = (e: JSX.TargetedMouseEvent<HTMLTableElement> | JSX.TargetedTouchEvent<HTMLTableElement>) => {
+    const handlePointerUp = (e: JSX.TargetedMouseEvent<HTMLTableElement> | JSX.TargetedTouchEvent<HTMLTableElement>) => {
         // Calculate the difference between the initial and final Y position
         const endY = (e as JSX.TargetedMouseEvent<HTMLTableElement>).clientY || (e as JSX.TargetedTouchEvent<HTMLTableElement>).changedTouches[0].clientY
         const deltaY = endY - startY
@@ -127,7 +127,7 @@ const renderData = <T extends T[],>(props: Omit<TableProps<T>, 'data'> & { data:
 
     const sortedKeys = useMemo(() => sortByOrder(Object.keys($$(data)[0]), $$(orderColumns) ?? []))
     return <div>
-        <table {...props} onWheel={e => props.onWheel ?? ($$(noWheel) ? undefined : wheel(e))} onMouseMove={e => $$(noWheel) ? undefined : wheel(e)} ref={tableRef} class={[cls, className, () => !$$(hideScrollbar) ? 'inline-block' : '']}>
+        <table {...rp} onWheel={e => props.onWheel ?? ($$(noWheel) ? undefined : wheel(e))} onPointerMove={e => $$(noWheel) ? undefined : wheel(e as any)} ref={tableRef} class={[cls, className, () => !$$(hideScrollbar) ? 'inline-block' : '']}>
             <thead>
                 <tr ref={hr}>
                     {() => $$(sortedKeys).map((col, index, columns) => Th({ col, index, columns, group }))}
@@ -137,6 +137,7 @@ const renderData = <T extends T[],>(props: Omit<TableProps<T>, 'data'> & { data:
                 {() => $$(nd).map((row, index) => (
                     <Tr>
                         {() => $$(sortedKeys).map((col) => (
+                            //@ts-ignore
                             <Td ref={index === 0 ? row1 : undefined} {...{ value: row[col], col, index, row }} />
                         ))}
                     </Tr>
