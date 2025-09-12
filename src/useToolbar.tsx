@@ -1,8 +1,8 @@
 import React, { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, Observable, ObservableReadonly } from 'woby'
 import { ToObservable } from './index'
-import { useClickAway, } from 'use-woby'
-import { Wheeler, useRecordWheeler } from 'woby-wheeler'
-import 'woby-wheeler/dist/output.css'
+import { useClickAway, } from '@woby/use'
+import { Wheeler, useRecordOptions } from '@woby/wui'
+import '@woby/wui/dist/wui.css'
 
 const FilterIcon = (props: JSX.SVGAttributes<SVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" {...props}><path d="M400-240v-80h160v80H400ZM240-440v-80h480v80H240ZM120-640v-80h720v80H120Z" /></svg>
 const FilterOffIcon = (props: JSX.SVGAttributes<SVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" {...props}><path d="M791-55 55-791l57-57 736 736-57 57ZM633-440l-80-80h167v80h-87ZM433-640l-80-80h487v80H433Zm-33 400v-80h160v80H400ZM240-440v-80h166v80H240ZM120-640v-80h86v80h-86Z" /></svg>
@@ -35,7 +35,7 @@ export const useToolbar = <T,>({ canHide, fullTextSearch, canFilter, shows }:
                     <span title='Remove filter' class='bg-[#f8e3fa] border cursor-pointer' onClick={() => { showFullTextSearch(false); fullTextSearch(null) }}>✖</span>
                     <span title='Set filter' class='bg-[#f7fae3] border cursor-pointer' onClick={() => { showFullTextSearch(false) }}>✔</span></div> : null
             }
-            <Wheeler {...useRecordWheeler(shows)} open={display} toolbar />
+            <Wheeler options={useRecordOptions(shows)} visible={display} />
         </div>
     }
 }

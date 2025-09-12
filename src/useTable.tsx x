@@ -1,9 +1,9 @@
 import { $, $$, render, useEffect, useMemo, ObservableMaybe, Observable, ObservableReadonly, type JSX, } from 'woby'
-import { tw } from 'woby-styled'
+import { tw } from '@woby/styled'
 
 import '../dist/output.css'
-import { Slider } from "woby-slider"
-import 'woby-slider/dist/output.css'
+import { Slider } from '@woby/slider"
+import '@woby/slider/dist/output.css'
 import { $$$, ObservantAll } from "use-woby"
 import { GroupedLike, Table, TableProps } from "./Table"
 

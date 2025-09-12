@@ -1,5 +1,5 @@
 import { $, $$, render, store, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, type Observable, ObservableReadonly } from 'woby'
-import 'woby-wheeler/dist/output.css'
+import '@woby/wui/dist/wui.css'
 import { ToObservable } from './util'
 
 

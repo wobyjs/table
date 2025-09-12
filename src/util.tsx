@@ -1,9 +1,9 @@
-import '../dist/output.css'
-import 'woby-slider/dist/output.css'
+import './input.css'
+import '@woby/slider/dist/slider.css'
 import { $$$, ObservantAll, make, } from "use-woby"
 import { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, type Observable, ObservableReadonly } from 'woby'
 import { groupBy, orderBy, filter as ft, chain, sortBy, sumBy, isArray, omit, map, filter } from "lodash-es"
-import 'woby-wheeler/dist/output.css'
+import '@woby/wui/dist/wui.css'
 
 
 export enum SortDir {

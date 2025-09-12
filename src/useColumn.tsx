@@ -1,5 +1,5 @@
 import { $, $$, render, useEffect, useMemo, type JSX, isObservable, ObservableMaybe, type Observable, ObservableReadonly } from 'woby'
-import 'woby-wheeler/dist/output.css'
+import '@woby/wui/dist/wui.css'
 import { ToObservable } from './util'
 
 
@@ -15,7 +15,7 @@ export const useColumn = <T,>(db: ObservableMaybe<T[]>, show: Partial<ToObservab
 
         if (!$$(haveHide))
             return $$(db)
-        
+
         return $$(db).map(row => {
             const filteredRow = {} as Partial<T>
 

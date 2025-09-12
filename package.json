@@ -1,10 +1,13 @@
 {
-    "name": "woby-table",
+    "name": "@woby/table",
     "version": "1.0.5",
+    "publishConfig": {
+        "access": "public"
+    },
     "description": "table ui component for voby",
     "keywords": [
         "woby",
-        "woby-table",
+        "@woby/table",
         "table",
         "component",
         "ui"
@@ -22,10 +25,10 @@
     "maintainers": [],
     "repository": {
         "type": "git",
-        "url": "git@github.com:voby-component/table.git"
+        "url": "git@github.com:wobyjs/table.git"
     },
     "bugs": {
-        "url": "http://github.com/woby-component/table/issues"
+        "url": "http://github.com/wobyjs/table/issues"
     },
     "license": "MIT",
     "scripts": {
@@ -38,11 +41,11 @@
         "deploy": "npm run docs:build && npm run docs:deploy",
         "prettier": "prettier --write \"**/*.{js,jsx,tsx,ts,less,md,json}\"",
         "css:watch": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
-        "css": "tailwindcss -i ./src/input.css -o ./dist/output.css",
+        "css11": "tailwindcss -i ./src/input.css -o ./dist/output.css",
         "declaration": "tsc --build --force --declaration --emitDeclarationOnly --declarationMap  --verbose",
         "declaration:watch": "tsc --build --force --declaration --emitDeclarationOnly --declarationMap  --verbose --watch",
         "watch": "run-p build:watch css:watch",
-        "build": "run-s css build:vite css declaration",
+        "build": "run-s build:vite declaration",
         "build:web": "vite build --config=vite.config.web.mts --force --mode production",
         "web": "vite preview --config=vite.config.web.mts --host",
         "dev:only": "vite --config=vite.config.web.mts --force --mode dev --host",
@@ -53,21 +56,22 @@
     },
     "peerDependencies": {
         "lodash-es": "^4.17.21",
-        "use-woby": "workspace:../use-woby",
+        "@woby/use": "workspace:../use",
         "woby": "workspace:../woby",
-        "woby-slider": "workspace:../woby-slider",
-        "woby-styled": "workspace:../woby-styled",
-        "woby-wheeler": "workspace:../woby-wheeler"
+        "@woby/slider": "workspace:../slider",
+        "@woby/wui": "workspace:../wui",
+        "@woby/styled": "workspace:../styled"
     },
     "devDependencies": {
         "@types/lodash-es": "^4.17.12",
         "cross-env": "^7.0.3",
-        "tailwindcss": "^3.4.17",
+        "tailwindcss": "^4.0.17",
+        "@tailwindcss/vite": "^4.0.6",
         "tailwindcss-elevation": "^2.0.0",
-        "vite": "^6.0.5",
+        "vite": "^6.1.0",
         "vite-plugin-svgr": "^4.3.0"
     },
     "dependencies": {
-        "typescript": "5.7.2"
+        "typescript": "5.7.3"
     }
 }

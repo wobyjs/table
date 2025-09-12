@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 // import dts from 'vite-plugin-dts'
 
@@ -7,7 +8,7 @@ const config = defineConfig({
         minify: false,
         lib: {
             entry: ["./index.html"],
-            name: "woby-wui",
+            name: "@woby/table",
             formats: [/*'cjs', */'es', 'umd'],
             fileName: (format: string, entryName: string) => `${entryName}.${format}.js`
         },
@@ -19,6 +20,7 @@ const config = defineConfig({
     },
     plugins: [
         // dts({ entryRoot: './src', outputDir: './dist/types' })
+        tailwindcss(),
     ],
     resolve: {
         alias: {

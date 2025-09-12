@@ -1,1 +1,1 @@
-{"root":["./src/table.tsx","./src/index.tsx","./src/usecolumn.tsx","./src/usedata.tsx","./src/usefilter.tsx","./src/useshow.tsx","./src/usesort.tsx","./src/usetoolbar.tsx","./src/usevirtualizedtable.tsx","./src/usewheelpan.tsx","./src/util.tsx"],"version":"5.7.2"}
+{"root":["./src/table.tsx","./src/index.tsx","./src/usecolumn.tsx","./src/usedata.tsx","./src/usefilter.tsx","./src/useshow.tsx","./src/usesort.tsx","./src/usetoolbar.tsx","./src/usevirtualizedtable.tsx","./src/usewheelpan.tsx","./src/util.tsx"],"errors":true,"version":"5.7.3"}

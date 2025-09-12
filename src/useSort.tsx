@@ -1,8 +1,8 @@
-import '../dist/output.css'
-import 'woby-slider/dist/output.css'
+import './input.css'
+import '@woby/slider/dist/slider.css'
 import { $, $$, render, useEffect, store, useMemo, type JSX, isObservable, ObservableMaybe, type Observable, ObservableReadonly } from 'woby'
 import { groupBy, orderBy, filter as ft, chain, sortBy, sumBy, isArray, omit, map, filter } from "lodash-es"
-import 'woby-wheeler/dist/output.css'
+import '@woby/wui/dist/wui.css'
 import { SortDirRecord, SortDir, ToObservable } from './util'
 
 
@@ -57,7 +57,7 @@ export const useSort = <T,>(db: ObservableMaybe<T[]>, shows: ToObservable<T, boo
 
         if (!sortorder.length)
             return $$(db)
-        
+
         return orderBy($$(db), sortorder, sortorder.filter(r => !!$$(shows[r])).map(k => $$(sorts[k])) as any) as any
 
     })

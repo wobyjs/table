@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 // import dts from 'vite-plugin-dts'
 import svgr from "vite-plugin-svgr"
@@ -10,15 +11,16 @@ const config = defineConfig({
         minify: false,
         lib: {
             entry: ["./src/index.tsx"],
-            name: "woby-list",
+            name: "@woby/table",
             formats: [/*'cjs', */'es', 'umd'],
             fileName: (format: string, entryName: string) => `${entryName}.${format}.js`
         },
         sourcemap: true,
         rollupOptions: {
-            external: ['woby', 'woby/jsx-runtime', 'oby', 'woby/jsx-runtime', 'woby-styled',],
+            external: ['woby', 'woby/jsx-runtime', 'oby', 'woby/jsx-runtime', '@woby/styled', '@woby/wui'],
             output: {
                 globals: {
+                    '@woby/wui': 'woby-wui',
                     'woby': 'woby',
                     'woby/jsx-runtime': 'woby/jsx-runtime',
                 }
@@ -33,7 +35,7 @@ const config = defineConfig({
         svgr({
             // Set it to `true` to export React component as default.
             // Notice that it will override the default behavior of Vite.
-            exportAsDefault: false,
+            // exportAsDefault: false,
 
             // svgr options: https://react-svgr.com/docs/options/
             svgrOptions: {
@@ -52,6 +54,7 @@ const config = defineConfig({
             exclude: "",
         }),
         // dts({ entryRoot: './src/lib', outputDir: './dist/types' })
+        tailwindcss(),
     ],
     resolve: {
         alias: {
