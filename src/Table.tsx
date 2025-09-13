@@ -2,9 +2,9 @@ import React, { $, $$, render, useEffect, useMemo, ObservableMaybe, Observable, 
 import { tw } from '@woby/styled'
 
 import '../dist/output.css'
-import { Slider } from '@woby/slider"
+import { Slider } from '@woby/slider'
 import '@woby/slider/dist/output.css'
-import { $$$, ObservantAll } from "use-woby"
+import { $$$, ObservantAll } from "@woby/use"
 import { useData } from './useData'
 
 

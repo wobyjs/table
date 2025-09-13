@@ -20,7 +20,7 @@ const config = defineConfig({
             external: ['woby', 'woby/jsx-runtime', 'oby', 'woby/jsx-runtime', '@woby/styled', '@woby/wui'],
             output: {
                 globals: {
-                    '@woby/wui': 'woby-wui',
+                    '@woby/wui': '@woby/wui',
                     'woby': 'woby',
                     'woby/jsx-runtime': 'woby/jsx-runtime',
                 }

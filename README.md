@@ -14,7 +14,7 @@ npm start
 
 ## Example
 
-https://github.com/wongchichong/table
+https://github.com/wobyjs/table
 
 ## Usage
 
